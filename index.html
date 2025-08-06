@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical NER System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+                <div class="header-text">
+                    <h1>MediTagger</h1>
+                    <p>Intelligent analysis of medical text to identify diseases, medications, symptoms, and more</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Input Section -->
+            <section class="input-section">
+                <div class="input-card">
+                    <div class="card-header">
+                        <i class="fas fa-edit"></i>
+                        <h2>Enter Medical Text</h2>
+                    </div>
+                    <div class="card-body">
+                        <textarea id="medical-text" placeholder="Enter medical text here... For example: 'Patient presents with chest pain and shortness of breath. Prescribed aspirin 100mg twice daily.'"></textarea>
+                        <div class="input-actions">
+                            <button id="analyze-btn" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                                Analyze Text
+                            </button>
+                            <button id="clear-btn" class="btn btn-secondary">
+                                <i class="fas fa-trash"></i>
+                                Clear
+                            </button>
+                            <button id="sample-btn" class="btn btn-tertiary">
+                                <i class="fas fa-file-text"></i>
+                                Load Sample
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="results-section" style="display: none;">
+                <!-- Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-entities">0</div>
+                            <div class="stat-label">Total Entities</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="entity-types-count">0</div>
+                            <div class="stat-label">Entity Types</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entity Summary -->
+                <div class="results-card">
+                    <div class="card-header">
+                        <i class="fas fa-list"></i>
+                        <h3>Entity Summary</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="entity-summary" class="entity-summary"></div>
+                    </div>
+                </div>
+
+                <!-- Detailed Entities -->
+                <div class="results-card">
+                    <div class="card-header">
+                        <i class="fas fa-microscope"></i>
+                        <h3>Detected Entities</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="entity-list" class="entity-list"></div>
+                    </div>
+                </div>
+
+                <!-- Annotated Text -->
+                <div class="results-card">
+                    <div class="card-header">
+                        <i class="fas fa-highlighter"></i>
+                        <h3>Annotated Text</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="annotated-text" class="annotated-text"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Entity Types Info -->
+            <section class="info-section">
+                <div class="info-card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Supported Entity Types</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="entity-types-grid">
+                            <div class="entity-type-item disease">
+                                <i class="fas fa-virus"></i>
+                                <div>
+                                    <strong>DISEASE</strong>
+                                    <p>Medical conditions and diseases</p>
+                                </div>
+                            </div>
+                            <div class="entity-type-item medication">
+                                <i class="fas fa-pills"></i>
+                                <div>
+                                    <strong>MEDICATION</strong>
+                                    <p>Drugs and medications</p>
+                                </div>
+                            </div>
+                            <div class="entity-type-item symptom">
+                                <i class="fas fa-thermometer-half"></i>
+                                <div>
+                                    <strong>SYMPTOM</strong>
+                                    <p>Signs and symptoms</p>
+                                </div>
+                            </div>
+                            <div class="entity-type-item body-part">
+                                <i class="fas fa-user"></i>
+                                <div>
+                                    <strong>BODY_PART</strong>
+                                    <p>Anatomical parts</p>
+                                </div>
+                            </div>
+                            <div class="entity-type-item procedure">
+                                <i class="fas fa-user-md"></i>
+                                <div>
+                                    <strong>PROCEDURE</strong>
+                                    <p>Medical procedures</p>
+                                </div>
+                            </div>
+                            <div class="entity-type-item test">
+                                <i class="fas fa-flask"></i>
+                                <div>
+                                    <strong>TEST</strong>
+                                    <p>Medical tests and examinations</p>
+                                </div>
+                            </div>
+                            <div class="entity-type-item dosage">
+                                <i class="fas fa-prescription-bottle"></i>
+                                <div>
+                                    <strong>DOSAGE</strong>
+                                    <p>Medication dosages and frequencies</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Analyzing medical text...</p>
+            </div>
+        </div>
+
+        <!-- Error Modal -->
+        <div id="error-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="error-message"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
